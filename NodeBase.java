@@ -17,22 +17,11 @@ public abstract class NodeBase {
 	private MulticastSocket ms;
 	InetAddress ia = InetAddress.getByName("224.5.5.5");  // broadcast IP
 
-	public NodeBase(int port, String type) throws IOException {
-		if (type == "S") {
-			this.ip = InetAddress.getLocalHost().getHostAddress();
-			this.port = port;
-			server = createSocketServer(port);
-		} 
-		else {
+	public NodeBase(int port) throws IOException {
 			this.port = port;
 			this.ip = InetAddress.getLocalHost().getHostAddress();
 			ms = createMulticastSocket(port);
 			ms.joinGroup(ia);
-		}
-	}
-
-	public String getIp() {
-		return this.ip;
 	}
 	
 	public void setIp(String ip){
@@ -63,8 +52,7 @@ public abstract class NodeBase {
 			try {
 				synchronized (server) {
 					client = server.accept();
-					System.out.println("Get Connection : InetAddress = "
-							+ client.getInetAddress());
+					System.out.println("Get Connection : InetAddress = " + client.getInetAddress());
 				}
 				client.setSoTimeout(15000);
 				in = new BufferedInputStream(client.getInputStream());
