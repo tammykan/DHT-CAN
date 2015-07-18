@@ -11,7 +11,6 @@ import java.util.Random;
 public class CanNode extends NodeBase implements Runnable {
 
 	Coordinate c = new Coordinate();
-	// Hashtable<String,Coordinate>(); // neighborhood table
 	HashSet<CanNode> neighbour = new HashSet<CanNode>();
 	HashMap<String, String> table = new HashMap<String, String>(); // (key,value) table
 	private static int nodeNum = 0;
@@ -39,19 +38,23 @@ public class CanNode extends NodeBase implements Runnable {
 		table.put(peer.getKey(), peer.getValue());
 	}
 
-	/*
-	 * public void showNeighbours(){ System.out.println("My Neighbours: ");
-	 * Enumeration<String> e = neighbour.keys(); while(e.hasMoreElements()){
-	 * String s = e.nextElement().toString(); // neighbour's IP Coordinate c =
-	 * (Coordinate) neighbour.get(s); // neighbour's Coordinate
-	 * System.out.println(s); c.showCoordinate(); } }
-	 */
+
+	 public void showNeighbours() throws IOException{ 
+		 System.out.println("My Neighbours: ");
+		 Iterator<CanNode> iterator = neighbour.iterator();
+		 CanNode temp = new CanNode(getServerPort());
+		while (iterator.hasNext()) {
+			temp = iterator.next();
+			System.out.println(temp.getIp());
+			temp.getCoordinate().show();
+		} 
+	 }
 
 	public void showTable() {
 		System.out.println("My Files: ");
 		for (Object key : table.keySet()) {
-			   System.out.println("Key: " + key.toString() + "\tValue: "+ table.get(key));
-			   }
+			System.out.println("Key: " + key.toString() + "\tValue: "+ table.get(key));
+			}
 	}
 	
 	public int getRandomPoint() {
@@ -73,11 +76,12 @@ public class CanNode extends NodeBase implements Runnable {
 			CanNode node = routeNode(x, y);
 			node.split(this);
 			node.addNeighbours(this);
+			this.addNeighbours(node);	
+			
 		}
 	}
 
 	public void delete() {
-
 		if (nodeNum == 0)
 			System.out.println("Please join the first Node.");
 		else {
@@ -88,7 +92,7 @@ public class CanNode extends NodeBase implements Runnable {
 
 	/* update the neighborhood */
 	public void updateNeighbours() {
-
+		
 	}
 
 	public void updateTable(String key, String value) {
@@ -120,7 +124,7 @@ public class CanNode extends NodeBase implements Runnable {
 		}
 	}
 
-	public String searchPeer(String key) {
+	public String searchPeer(String key) throws IOException {
 		Peer peer = new Peer();
 		int x = peer.HashX(key);
 		int y = peer.HashY(key);
@@ -131,8 +135,12 @@ public class CanNode extends NodeBase implements Runnable {
 			else
 				return ("Failure");
 		} else {
-
-		}
+			CanNode node = routeNode(x,y);
+			for (String str : node.table.keySet()) {
+				if(str == key)
+					return node.table.get(str);
+			}
+		}		
 		return null;
 	}
 
