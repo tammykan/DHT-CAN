@@ -21,7 +21,7 @@ public class CanNode extends NodeBase implements Runnable {
 		c = new Coordinate();
 	}
 
-	public CanNode(int port, Coordinate c, String type) throws IOException {
+	public CanNode(int port, Coordinate c) throws IOException {
 		super(port);
 		this.c = c;
 	}
@@ -63,7 +63,7 @@ public class CanNode extends NodeBase implements Runnable {
 	}
 
 	public void join() throws IOException {
-		//send("Join");
+		send("Join");
 		if (nodeNum == 0) {
 			System.out.println("Join the first Node.");
 			bootstrap = this;
