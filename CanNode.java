@@ -18,7 +18,7 @@ public class CanNode extends NodeBase implements Runnable {
 
 	public CanNode(int port) throws IOException {
 		super(port);
-		c = null;
+		c = new Coordinate();
 	}
 
 	public CanNode(int port, Coordinate c, String type) throws IOException {
@@ -63,6 +63,7 @@ public class CanNode extends NodeBase implements Runnable {
 	}
 
 	public void join() throws IOException {
+		//send("Join");
 		if (nodeNum == 0) {
 			System.out.println("Join the first Node.");
 			bootstrap = this;
@@ -76,8 +77,7 @@ public class CanNode extends NodeBase implements Runnable {
 			CanNode node = routeNode(x, y);
 			node.split(this);
 			node.addNeighbours(this);
-			this.addNeighbours(node);	
-			
+			this.addNeighbours(node);		
 		}
 	}
 
@@ -87,6 +87,8 @@ public class CanNode extends NodeBase implements Runnable {
 		else {
 			nodeNum -= 1;
 			System.out.println("Delete the node.");
+			this.delete();
+			
 		}
 	}
 
@@ -103,13 +105,11 @@ public class CanNode extends NodeBase implements Runnable {
 		if (c.isSplitVertical()) {
 			int x = c.getUpperx();
 			c.splitVertical();
-			node.c = new Coordinate(c.getUpperx(), c.getLowery(), x,
-					c.getUppery()); // set new coordinate
+			node.c = new Coordinate(c.getUpperx(), c.getLowery(), x, c.getUppery()); // set new coordinate
 		} else {
 			int y = c.getUppery();
 			c.splitHorizontal();
-			node.c = new Coordinate(c.getLowerx(), c.getUppery(),
-					c.getUpperx(), y); // set new coordinate
+			node.c = new Coordinate(c.getLowerx(), c.getUppery(), c.getUpperx(), y); // set new coordinate
 		}
 	}
 
