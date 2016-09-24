@@ -1,130 +1,112 @@
 package tw.nccu.edu.dht;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+ 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-public abstract class NodeBase {
-	private String ip = null;
-	private int port = 0;
-	private ServerSocket server;
-	private MulticastSocket ms;
-	InetAddress ia = InetAddress.getByName("224.5.5.5");  // broadcast IP
-
-	public NodeBase(int port) throws IOException {
-			this.port = port;
-			this.ip = InetAddress.getLocalHost().getHostAddress();
-			ms = createMulticastSocket(port);
-			ms.joinGroup(ia);
-	}
-	
-	public void setIp(String ip){
-		this.ip = ip;
-	}
-
-	public int getServerPort() {
-		return this.port;
-	}
-
-	public static ServerSocket createSocketServer(int port) {
-		ServerSocket serverSocket = null;
-
-		try {
-			serverSocket = new ServerSocket(port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return serverSocket;
-	}
-
-	private Socket client;
-	private BufferedInputStream in;
-	private BufferedOutputStream out;
-
-	public void start() {
-		while (true) {
-			try {
-				synchronized (server) {
-					client = server.accept();
-					System.out.println("Get Connection : InetAddress = " + client.getInetAddress());
-				}
-				client.setSoTimeout(15000);
-				in = new BufferedInputStream(client.getInputStream());
-				out = new BufferedOutputStream(client.getOutputStream());
-				process(in, out);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	abstract protected void process(BufferedInputStream input,
-			BufferedOutputStream output);
-
-	protected void sendMessage(String targetAddress, int targetPort,
-			String message) throws IOException {
-		Socket sink = new Socket();
-		InetSocketAddress isa = new InetSocketAddress(targetAddress, targetPort);
-		System.out.println("Connecting...");
-		try {
-			sink.connect(isa, 10000);
-			BufferedOutputStream out = new BufferedOutputStream(
-					sink.getOutputStream());
-			out.write(message.getBytes());
-			out.close();
-			System.out.println("Successful");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			sink.close();
-		}
-	}
-
-	
-	public static MulticastSocket createMulticastSocket(int port) {
-		MulticastSocket multicastSocket = null;
-		try {
-			multicastSocket = new MulticastSocket(port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return multicastSocket;
-	}
-
-	public String receive()
+import java.net.SocketException;
+ 
+public abstract class NodeBase
+{
+    private final static String MULTICAST_IP = "224.5.5.5";
+    private final static int MULTICAST_PORT = 1001;
+    private String nodeIP = null;
+    private int nodePort = 0;
+     
+    protected MulticastSocket ms;   
+    protected DatagramSocket clientSocket;
+    protected DatagramSocket serverSocket;
+    protected DatagramPacket dp;
+    protected byte[] buffer;
+     
+    public NodeBase(int port) throws IOException
     {
-    	String str = new String();
-    	try{
-    		byte[] buffer = new byte[1024];
-    		while(true){
-    			DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-    			ms.receive(dp);
-    			str = new String(dp.getData(), 0, dp.getLength());
-    			System.out.println("Node: " + ip + " receive message: " + str);
-    			break;
-    		}
-    	}catch(IOException e){
-    		e.printStackTrace();
-    	}
-    	return str;
+        this.nodeIP = InetAddress.getLocalHost().getHostAddress();
+        this.nodePort = port;
+        System.out.println("node IP is:" + nodeIP);
+        System.out.println("node Port is:" + nodePort);
+         
+        ms = createMulticastSocket(MULTICAST_PORT);
+        ms.joinGroup(InetAddress.getByName(MULTICAST_IP));
+        
+        buffer = new byte[1024];
+        dp = new DatagramPacket(buffer, buffer.length);     
+        try{
+            serverSocket = new DatagramSocket(port, InetAddress.getByName(getIp()));
+        }catch(SocketException ex){
+            ex.printStackTrace();
+        }        
     }
-
-	public void send(String str)
+ 
+    public NodeBase() {
+        // TODO Auto-generated constructor stub
+    }
+ 
+    public String getIp()
     {
-    	try{
-    		System.out.println("Node: " + ip + " send message: " + str);
-    		byte[] data = str.getBytes();
-    		DatagramPacket dp = new DatagramPacket(data, data.length, ia, port);
-    		ms.send(dp);
-    	}catch(IOException e){
-    		e.printStackTrace();
-    	}
+        return this.nodeIP;
     }
+ 
+    public void setIp(String ip)
+    {
+        this.nodeIP = ip;
+    }
+ 
+    public int getServerPort()
+    {
+        return this.nodePort;
+    }
+    
+    public void setServerPort(int port)
+    {
+    	this.nodePort = port;
+    }
+ 
+    public static MulticastSocket createMulticastSocket(int port)
+    {
+        MulticastSocket multicastSocket = null;
+        try{
+            multicastSocket = new MulticastSocket(port);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return multicastSocket;
+    }
+ 
+    public String receiveMessage() throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+        try
+        {
+            ms.receive(dp);
+            String result = new String(buffer, 0, dp.getLength());
+            //System.out.println("Node: " + nodeIP + ":" + nodePort + " receive message: " + result);
+            return result;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+ 
+    }
+ 
+    public void sendMessage(String str) throws IOException, InterruptedException
+    {
+        DatagramPacket dp = null;
+        try
+        {
+            //System.out.println("Node: " + nodeIP + ":" + nodePort + " send message: " + str);
+            byte[] data = str.getBytes();
+            dp = new DatagramPacket(data, data.length, InetAddress.getByName(MULTICAST_IP), MULTICAST_PORT);
+            ms.send(dp);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+     
 }
