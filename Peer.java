@@ -1,9 +1,11 @@
 package tw.nccu.edu.dht;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-public class Peer{
-	
+public class Peer implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private String key;
 	private String value;
 	private int x;
