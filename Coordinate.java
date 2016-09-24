@@ -1,13 +1,15 @@
 package tw.nccu.edu.dht;
 
-public class Coordinate {
-	
+import java.io.Serializable;
+
+public class Coordinate implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private int lowerx, lowery;
 	private int upperx, uppery;
 	private int centerx, centery;
 	
-	public Coordinate(int lowerx,int lowery,int upperx,int uppery){
-		
+	public Coordinate(int lowerx,int lowery,int upperx,int uppery){	
 		this.lowerx = lowerx;
 		this.lowery = lowery;
 		this.upperx = upperx;
@@ -31,8 +33,8 @@ public class Coordinate {
 		System.out.println("Node Coordinate: ");
 		System.out.println("Lower x: " + getLowerx() + " Lower y: " + getLowery());
 		System.out.println("Upper x: " + getUpperx() + " Upper y: " + getUppery());
-		//System.out.println("Center x: " + (getLowerx() + getUpperx())/2);
-		//System.out.println("Center y: " + (getLowery() + getUppery())/2);
+		System.out.println("Center x: " + (getLowerx() + getUpperx())/2);
+		System.out.println("Center y: " + (getLowery() + getUppery())/2);
 	}
 	
 	public boolean isContain(int x, int y){
@@ -42,16 +44,71 @@ public class Coordinate {
 		return false;
 	}
 	
-	public double distance(int x, int y){
-		
-		return Math.sqrt(Math.pow(centery-y, 2) + Math.pow(centerx-x, 2));		
+	public boolean isLeftNeighbour(Coordinate c){
+		if(c.upperx == lowerx && c.uppery > lowery
+				&& c.lowery < uppery && c.lowerx < upperx)
+			return true;
+		return false;
 	}
 	
-	public boolean isSplitVertical(){
-		
+	public boolean isAboveNeighbour(Coordinate c){
+		if(c.lowery == uppery && c.upperx > lowerx
+				&& c.uppery > lowery && c.lowerx < upperx)
+			return true;
+		return false;
+	}
+	
+	public boolean isRightNeighbour(Coordinate c){
+		if(c.lowerx == upperx && c.lowery < uppery
+				&& c.upperx > lowerx && c.uppery > lowery)
+			return true;
+		return false;
+	}
+	
+	public boolean isBelowNeighbour(Coordinate c){
+		if(c.uppery == lowery && c.lowerx < upperx
+				&& c.lowery < uppery && c.upperx > lowerx)
+			return true;
+		return false;
+	}
+	
+	public double area() {
+		double area;
+		area = (upperx-lowerx) * (uppery-lowery);
+		return area;
+	}
+	
+	public boolean isSameSize(Coordinate c){
+		if( ((upperx-lowerx) == (c.upperx-c.lowerx)) && ((uppery-lowery) == (c.uppery-c.lowery)) )
+			return true;
+		return false;
+	}
+	
+	public double distance(int x, int y){		
+		return Math.sqrt(Math.pow(centery-y, 2) + Math.pow(centerx-x, 2));	
+	}
+	
+	public boolean isSplitVertical(){	
 		if(upperx-lowerx >= uppery-lowery)
 			return true;
 		return false;
+	}
+	
+	public Coordinate merge(Coordinate c) {
+		Coordinate mergeCoordinate = new Coordinate();
+		if(upperx == c.lowerx && uppery == c.uppery && lowery == c.lowery) {
+			mergeCoordinate = new Coordinate(lowerx, lowery, c.upperx, uppery);
+		}
+		else if(lowerx == c.upperx && uppery == c.uppery && lowery == c.lowery) {
+			mergeCoordinate = new Coordinate(c.lowerx, lowery, upperx, uppery);
+		}
+		else if(lowerx == c.lowerx && upperx == c.upperx && uppery == c.lowery) {
+			mergeCoordinate = new Coordinate(lowerx, lowery, upperx, c.uppery);
+		}
+		else if(lowerx == c.lowerx && upperx == c.upperx && lowery == c.uppery) {
+			mergeCoordinate = new Coordinate(lowerx, c.lowery, upperx, uppery);
+		}
+		return mergeCoordinate;
 	}
 	
 	public void splitVertical(){	
@@ -64,19 +121,6 @@ public class Coordinate {
 		uppery = (lowery+uppery)/2;
 		centerx = (lowerx+upperx)/2;
 		centery = (lowery+uppery)/2;
-	}
-	
-	public Coordinate updateCoordinate(Coordinate c){
-		if(c.lowerx >= upperx)
-			c.lowerx = lowerx;
-		else if(c.upperx <= lowerx)
-			c.upperx = upperx;
-		if(c.lowery >= uppery)
-			c.lowery = lowery;
-		else if(c.uppery <= lowery)
-			c.uppery = lowery;
-		
-		return c;
 	}
 	
 	public int getLowerx(){
