@@ -14,12 +14,19 @@ Keywords: CAN, P2P, Smart Home
 
 ## References
 S.A. Baset, A. Salman, and H. Schulzrinne, ”An analysis of the skype peer-to-peer internet telephony protocol,” in arXiv preprint cs/0412017, 2004.
+
 K.Dey. Anind, ”Understanding and Using Context, Personal and Ubiquitous Computing,” Vol. 5, Issue 1, pp. 4-7, 2001.
+
 M. Baldauf and S. Dustdar, ”Florian Rosenberg: A survey on context-aware systems,” in IJAHUC, Vol. 2 , No. 4, pp. 263-277, 2007.
+
 J. Hendler, O. Lassila, and T,B. Lee, ”The Semantic Web,” 2001.
+
 C, Y. Chin, J,S. Dong, S,R. Hettiarachchi, X. Wang, and D. Zhang, ”Semantic Space: An Infrastructure for Smart Spaces,” in IEEE, pp. 32-39, 2004.
+
 M,A. Hossain, E. Jacob, J. Parra, A,E. Saddik, and A. Uribarren, ”Flexible Smart Home Architecture using Device Profile for Web Services: a Peer-to-Peer Approach,” in International Journal of Home, Vol. 3, No. 2, pp. 39-55, 2009.
+
 P. Francis, M. Handley, R. Karp, S. Ratnasamy, and S. Shenker, ”A scalable content-addressable network,” 2001.
+
 B. Fabian, T. Feldhaus, ”Privacy-preserving data infrastructure for smart home appliances based on the Octopus DHT,” in Computers in Industry, 2014
 
 ## Citation
